@@ -3,17 +3,22 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
-// ===== LOGO SVG COMPONENT =====
+// ===== OFFICIAL PEJA LOGO COMPONENT =====
 function PejaLogo({ size = 44 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="44" height="44" rx="4" fill="#1a3a2a" />
-      {/* Arrow/chart upward */}
-      <polyline points="8,34 18,20 26,26 36,12" stroke="#c9a84c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <polyline points="30,12 36,12 36,18" stroke="#c9a84c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      {/* Green accent line */}
-      <line x1="8" y1="38" x2="36" y2="38" stroke="#3a7d52" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
+    <Image
+      src="/logo/logo-mark.png"
+      alt="PEJA Ventures Logo"
+      width={size}
+      height={size}
+      priority
+      style={{
+        objectFit: 'contain',
+        width: `${size}px`,
+        height: `${size}px`,
+        display: 'block',
+      }}
+    />
   );
 }
 
