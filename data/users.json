@@ -1,0 +1,12 @@
+[
+  {
+    "id": "user_admin_peja",
+    "email": "admin@pejaventures.ng",
+    "name": "PEJA Chief Administrator",
+    "role": "admin",
+    "passwordHash": "397911beb4bc64463092e447767a6e61ca71f9d9ede318b1e92b667c040e6c6186a0fab9f6e882805f583c25dae9490d32e6b72f4090633ae3268d5289bcc1d5",
+    "passwordSalt": "9a1618f10667fd487f3ecac52f877da5",
+    "organizationId": "org_peja_group",
+    "createdAt": "2026-10-29T20:20:54.228Z"
+  }
+]

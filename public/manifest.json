@@ -1,0 +1,26 @@
+{
+  "name": "PEJA Studio — Content Management",
+  "short_name": "PEJA Studio",
+  "description": "Installable administration portal for PEJA Ventures NIG.",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d1f15",
+  "theme_color": "#132b1e",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/logo/logo-mark.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 // ===== OFFICIAL PEJA LOGO COMPONENT =====
 function PejaLogo({ size = 44 }: { size?: number }) {
@@ -36,6 +37,7 @@ function Navbar() {
   const navLinks = [
     { href: '#group', label: 'The Group' },
     { href: '#businesses', label: 'Businesses' },
+    { href: '#featured', label: 'Featured Work' },
     { href: '#approach', label: 'Our Approach' },
     { href: '#contact', label: 'Contact' },
   ];
@@ -282,9 +284,10 @@ interface BusinessCardProps {
   img: string;
   alt: string;
   delay: number;
+  href: string;
 }
 
-function BusinessCard({ num, name, desc, img, alt, delay }: BusinessCardProps) {
+function BusinessCard({ num, name, desc, img, alt, delay, href }: BusinessCardProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -325,9 +328,9 @@ function BusinessCard({ num, name, desc, img, alt, delay }: BusinessCardProps) {
         <span className="business-card__num">{num}</span>
         <h3 className="business-card__name">{name}</h3>
         <p className="business-card__desc">{desc}</p>
-        <a href="#contact" className="business-card__link" aria-label={`Learn more about ${name}`}>
-          Learn More <span className="arrow" aria-hidden="true">→</span>
-        </a>
+        <Link href={href} className="business-card__link" aria-label={`Explore ${name}`}>
+          Explore Division <span className="arrow" aria-hidden="true">→</span>
+        </Link>
       </div>
     </div>
   );
@@ -357,30 +360,34 @@ function Businesses() {
     {
       num: '01',
       name: 'PEJA CLEANING',
-      desc: 'Professional cleaning services for homes, offices and commercial spaces.',
+      desc: 'Hospital-grade sanitization, corporate headquarters & luxury estate detailing.',
       img: '/peja-cleaning.jpg',
       alt: 'PEJA Cleaning professional service',
+      href: '/cleaning',
     },
     {
       num: '02',
       name: 'PEJA AGRICULTURE',
-      desc: 'Quality agricultural produce and supply for a healthier tomorrow.',
+      desc: 'Commercial grains, certified seeds, sustainable harvests & staple food supplies.',
       img: '/peja-agriculture.jpg',
       alt: 'PEJA Agriculture fresh produce',
+      href: '/agriculture',
     },
     {
       num: '03',
       name: 'PEJA LOGISTICS',
-      desc: 'Reliable movement of goods, across Nigeria and beyond.',
+      desc: 'Nationwide freight, refrigerated cold-chain corridors & integrated haulage.',
       img: '/peja-logistics.jpg',
       alt: 'PEJA Logistics transport and delivery',
+      href: '/logistics',
     },
     {
       num: '04',
       name: 'PEJA CLOTHING',
-      desc: 'Modern collections for a confident and expressive you.',
+      desc: 'Bespoke Nigerian tailoring, seasonal ready-to-wear lookbooks & corporate uniforms.',
       img: '/peja-clothing.jpg',
       alt: 'PEJA Clothing modern Nigerian fashion',
+      href: '/clothing',
     },
   ];
 
@@ -414,9 +421,267 @@ function Businesses() {
               img={b.img}
               alt={b.alt}
               delay={i * 100}
+              href={b.href}
             />
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ===== FEATURED PROJECTS (DYNAMIC CMS PLACEMENT) =====
+interface PublicFeaturedItem {
+  id: string;
+  title: string;
+  slug: string;
+  division: 'cleaning' | 'agriculture' | 'logistics' | 'clothing';
+  category: string;
+  description: string;
+  placements: string[];
+  media: Array<{
+    id: string;
+    url: string;
+    alt: string;
+    isCover?: boolean;
+  }>;
+  metadata?: Record<string, string>;
+  publishedAt?: string;
+}
+
+function FeaturedProjects() {
+  const [items, setItems] = useState<PublicFeaturedItem[]>([]);
+  const [selectedDivision, setSelectedDivision] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadFeatured() {
+      try {
+        const res = await fetch('/api/public/content?placement=homepage_featured');
+        if (res.ok) {
+          const data = await res.json();
+          setItems(data.items || []);
+        }
+      } catch (err) {
+        console.error('Failed to load featured homepage projects', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadFeatured();
+  }, []);
+
+  const filteredItems = selectedDivision === 'all'
+    ? items
+    : items.filter((item) => item.division === selectedDivision);
+
+  const divisionBadgeColors: Record<string, { bg: string; color: string; border: string }> = {
+    cleaning: { bg: 'rgba(58, 125, 82, 0.12)', color: '#2c5f3e', border: 'rgba(58, 125, 82, 0.3)' },
+    agriculture: { bg: 'rgba(201, 168, 76, 0.15)', color: '#99731e', border: 'rgba(201, 168, 76, 0.35)' },
+    logistics: { bg: 'rgba(30, 58, 138, 0.1)', color: '#1e3a8a', border: 'rgba(30, 58, 138, 0.25)' },
+    clothing: { bg: 'rgba(219, 39, 119, 0.1)', color: '#be185d', border: 'rgba(219, 39, 119, 0.25)' },
+  };
+
+  return (
+    <section className="featured-section" id="featured" style={{ padding: '100px 0', background: '#faf8f4' }} aria-label="Featured projects">
+      <div className="container">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '24px', marginBottom: '36px' }}>
+          <div>
+            <div className="section-label">
+              <div className="section-label__line" aria-hidden="true" />
+              <span className="section-label__text">Curated Placements</span>
+            </div>
+            <h2 className="section-headline">
+              Featured Work across<br />
+              <em>our enterprise.</em>
+            </h2>
+          </div>
+          <p style={{ maxWidth: '480px', color: 'var(--text-light)', fontSize: '0.95rem', lineHeight: 1.6 }}>
+            Curated project milestones, agricultural harvests, fleet corridors, and seasonal capsules published directly from PEJA Studio.
+          </p>
+        </div>
+
+        {/* Division Filter Pills */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '36px' }}>
+          {[
+            { id: 'all', label: 'All Divisions' },
+            { id: 'cleaning', label: 'PEJA Cleaning' },
+            { id: 'agriculture', label: 'PEJA Agriculture' },
+            { id: 'logistics', label: 'PEJA Logistics' },
+            { id: 'clothing', label: 'PEJA Clothing' },
+          ].map((tab) => {
+            const isActive = selectedDivision === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedDivision(tab.id)}
+                style={{
+                  padding: '8px 18px',
+                  borderRadius: '24px',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.04em',
+                  transition: 'all 0.2s ease',
+                  border: isActive ? '1px solid var(--green-dark)' : '1px solid #ede7d9',
+                  background: isActive ? 'var(--green-dark)' : '#ffffff',
+                  color: isActive ? '#f5f0e8' : 'var(--text-mid)',
+                  cursor: 'pointer',
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Dynamic Cards Grid */}
+        {loading ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '28px' }}>
+            {[1, 2, 3].map((n) => (
+              <div key={n} style={{ background: '#ffffff', height: '360px', borderRadius: '6px', border: '1px solid #ede7d9', opacity: 0.6 }} />
+            ))}
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div style={{ padding: '60px 24px', textAlign: 'center', background: '#ffffff', borderRadius: '8px', border: '1px dashed #d1c7b7' }}>
+            <p style={{ color: 'var(--text-light)', fontSize: '0.95rem' }}>No featured items published in this category yet.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '32px' }}>
+            {filteredItems.map((item) => {
+              const cover = item.media?.find((m) => m.isCover)?.url || item.media?.[0]?.url || '/hero/hero1.jpeg';
+              const badge = divisionBadgeColors[item.division] || { bg: '#e5e7eb', color: '#374151', border: '#d1d5db' };
+
+              return (
+                <article
+                  key={item.id}
+                  style={{
+                    background: '#ffffff',
+                    borderRadius: '6px',
+                    overflow: 'hidden',
+                    border: '1px solid #ede7d9',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.09)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.04)';
+                  }}
+                >
+                  <div style={{ position: 'relative', height: '240px', width: '100%', background: '#09150e' }}>
+                    <Image
+                      src={cover}
+                      alt={item.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 400px"
+                      style={{ objectFit: 'cover' }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '14px',
+                        left: '14px',
+                        display: 'flex',
+                        gap: '8px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          background: badge.bg,
+                          color: badge.color,
+                          border: `1px solid ${badge.border}`,
+                          backdropFilter: 'blur(8px)',
+                          padding: '4px 10px',
+                          borderRadius: '4px',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.08em',
+                        }}
+                      >
+                        PEJA {item.division}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--green-accent)', fontWeight: 700, marginBottom: '6px' }}>
+                      {item.category}
+                    </div>
+                    <h3 className="font-serif" style={{ fontSize: '1.35rem', color: 'var(--green-dark)', lineHeight: 1.25, marginBottom: '10px' }}>
+                      {item.title}
+                    </h3>
+                    <p style={{ fontSize: '0.88rem', color: 'var(--text-light)', lineHeight: 1.6, marginBottom: '16px', flex: 1 }}>
+                      {item.description}
+                    </p>
+
+                    {item.metadata && Object.keys(item.metadata).length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', paddingTop: '12px', borderTop: '1px solid #ede7d9', marginBottom: '16px' }}>
+                        {item.metadata.location && (
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-mid)', background: '#f5f0e8', padding: '3px 8px', borderRadius: '3px' }}>
+                            📍 {item.metadata.location}
+                          </span>
+                        )}
+                        {item.metadata.squareMeters && (
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-mid)', background: '#f5f0e8', padding: '3px 8px', borderRadius: '3px' }}>
+                            📐 {item.metadata.squareMeters}
+                          </span>
+                        )}
+                        {item.metadata.tonnage && (
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-mid)', background: '#f5f0e8', padding: '3px 8px', borderRadius: '3px' }}>
+                            🌾 {item.metadata.tonnage}
+                          </span>
+                        )}
+                        {item.metadata.fleetCount && (
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-mid)', background: '#f5f0e8', padding: '3px 8px', borderRadius: '3px' }}>
+                            🚛 {item.metadata.fleetCount}
+                          </span>
+                        )}
+                        {item.metadata.season && (
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-mid)', background: '#f5f0e8', padding: '3px 8px', borderRadius: '3px' }}>
+                            ✨ {item.metadata.season}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                      <Link
+                        href={`/${item.division}`}
+                        style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          color: 'var(--green-mid)',
+                          letterSpacing: '0.04em',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                        }}
+                      >
+                        Explore Division Gallery →
+                      </Link>
+                      <Link
+                        href={`/preview/${item.id}`}
+                        style={{
+                          fontSize: '0.75rem',
+                          color: 'var(--text-light)',
+                          textDecoration: 'underline',
+                        }}
+                      >
+                        Preview Case
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -671,8 +936,13 @@ function Footer() {
           <div>
             <h4 className="footer__col-title">Businesses</h4>
             <ul className="footer__links" role="list">
-              {['PEJA Cleaning', 'PEJA Agriculture', 'PEJA Logistics', 'PEJA Clothing'].map((b) => (
-                <li key={b}><a href="#businesses">{b}</a></li>
+              {[
+                { name: 'PEJA Cleaning', href: '/cleaning' },
+                { name: 'PEJA Agriculture', href: '/agriculture' },
+                { name: 'PEJA Logistics', href: '/logistics' },
+                { name: 'PEJA Clothing', href: '/clothing' },
+              ].map((b) => (
+                <li key={b.name}><Link href={b.href}>{b.name}</Link></li>
               ))}
             </ul>
           </div>
@@ -680,8 +950,21 @@ function Footer() {
           <div>
             <h4 className="footer__col-title">Company</h4>
             <ul className="footer__links" role="list">
-              {['The Group', 'Our Approach', 'Careers', 'Contact'].map((l) => (
-                <li key={l}><a href={`#${l.toLowerCase().replace(' ', '')}`}>{l}</a></li>
+              {[
+                { name: 'The Group', href: '#group' },
+                { name: 'Our Businesses', href: '#businesses' },
+                { name: 'Featured Work', href: '#featured' },
+                { name: 'Our Approach', href: '#approach' },
+                { name: 'Contact', href: '#contact' },
+                { name: 'PEJA Studio (Admin)', href: '/admin' },
+              ].map((l) => (
+                <li key={l.name}>
+                  {l.href.startsWith('#') ? (
+                    <a href={l.href}>{l.name}</a>
+                  ) : (
+                    <Link href={l.href}>{l.name}</Link>
+                  )}
+                </li>
               ))}
             </ul>
           </div>
@@ -745,6 +1028,7 @@ export default function Home() {
       <main>
         <Hero />
         <Businesses />
+        <FeaturedProjects />
         <Approach />
         <Contact />
       </main>
@@ -752,3 +1036,4 @@ export default function Home() {
     </>
   );
 }
+
