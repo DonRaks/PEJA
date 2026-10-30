@@ -5,6 +5,7 @@ import { ContentItem, ContentPlacement, ContentStatus, DashboardStats, DivisionI
 import { DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD, hashPassword, verifyPassword } from './auth';
 import { DEFAULT_TENANT_ID, DEFAULT_TENANT_NAME } from './constants';
 import { INITIAL_CONTENT } from './seed';
+import { getSupabaseAdminClient } from './supabase';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const CONTENT_FILE = path.join(DATA_DIR, 'content.json');
@@ -104,13 +105,9 @@ async function loadUsersStore(): Promise<StoredUser[]> {
  */
 export async function authenticateAdmin(email: string, password: string): Promise<UserSession | null> {
   // Check Supabase Auth if credentials configured
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (supabaseUrl && supabaseServiceKey) {
+  const supabase = getSupabaseAdminClient();
+  if (supabase) {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password: password,
@@ -160,14 +157,9 @@ export async function getContentItems(options?: {
   limit?: number;
 }): Promise<ContentItem[]> {
   // Check Supabase PostgreSQL if enabled
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (supabaseUrl && supabaseServiceKey) {
+  const supabase = getSupabaseAdminClient();
+  if (supabase) {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
       let query = supabase.from('projects').select('*');
 
       if (options?.organizationId) {
@@ -323,12 +315,9 @@ export async function createContentItem(
   await saveContentStore(items);
 
   // Sync to Supabase if configured
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (supabaseUrl && supabaseServiceKey) {
+  const supabase = getSupabaseAdminClient();
+  if (supabase) {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
       await supabase.from('projects').insert({
         id: newItem.id,
         organization_id: newItem.organizationId,
@@ -386,12 +375,9 @@ export async function updateContentItem(id: string, updates: Partial<ContentItem
   await saveContentStore(items);
 
   // Sync to Supabase if configured
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (supabaseUrl && supabaseServiceKey) {
+  const supabase = getSupabaseAdminClient();
+  if (supabase) {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
       await supabase
         .from('projects')
         .update({
@@ -427,12 +413,9 @@ export async function deleteContentItem(id: string): Promise<boolean> {
 
   await saveContentStore(filtered);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (supabaseUrl && supabaseServiceKey) {
+  const supabase = getSupabaseAdminClient();
+  if (supabase) {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
       await supabase.from('projects').delete().eq('id', id);
     } catch (err) {
       console.warn('Supabase delete error:', err);

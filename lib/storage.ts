@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { ALLOWED_IMAGE_TYPES, MAX_FILE_SIZE_BYTES } from './constants';
 import { MediaItem } from './types';
+import { getSupabaseAdminClient } from './supabase';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
 
@@ -84,14 +85,9 @@ export async function saveMediaFile(
   const filename = `${fileId}.${ext}`;
 
   // Check if Supabase Storage is configured
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (supabaseUrl && supabaseServiceKey) {
+  const supabase = getSupabaseAdminClient();
+  if (supabase) {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-      
       const { error: uploadError } = await supabase.storage
         .from('peja-media')
         .upload(`uploads/${filename}`, fileBuffer, {

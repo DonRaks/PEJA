@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
-
 :root {
+  --font-sans: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
   --green-dark: #1a3a2a;
   --green-mid: #2c5f3e;
   --green-accent: #3a7d52;
@@ -28,7 +28,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.6;
   color: var(--text-dark);
   background: var(--off-white);
@@ -54,7 +54,7 @@ button {
 }
 
 /* ===== TYPOGRAPHY ===== */
-.font-serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+.font-serif { font-family: var(--font-serif); }
 
 /* ===== UTILITY ===== */
 .container {

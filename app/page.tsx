@@ -138,9 +138,16 @@ function Hero() {
   const [current, setCurrent] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const total = HERO_SLIDES.length;
+
+  // Delay loading non-active hero slides until after critical initial paint
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 1200);
+    return () => clearTimeout(t);
+  }, []);
 
   const goTo = (idx: number) => {
     setPrev(current);
@@ -174,22 +181,28 @@ function Hero() {
     <section className="hero" id="group" aria-label="Hero slideshow">
       {/* Slide layers */}
       <div className="hero__bg" aria-hidden="true">
-        {HERO_SLIDES.map((slide, i) => (
-          <div
-            key={slide.src}
-            className={`hero__slide ${i === current ? 'hero__slide--active' : ''} ${i === prev ? 'hero__slide--exit' : ''}`}
-          >
-            <Image
-              src={slide.src}
-              alt={slide.alt}
-              fill
-              priority={i === 0}
-              quality={85}
-              sizes="100vw"
-              style={{ objectFit: 'cover', objectPosition: 'center' }}
-            />
-          </div>
-        ))}
+        {HERO_SLIDES.map((slide, i) => {
+          const shouldRender = i === 0 || mounted || i === current || i === prev;
+          if (!shouldRender) return null;
+
+          return (
+            <div
+              key={slide.src}
+              className={`hero__slide ${i === current ? 'hero__slide--active' : ''} ${i === prev ? 'hero__slide--exit' : ''}`}
+            >
+              <Image
+                src={slide.src}
+                alt={slide.alt}
+                fill
+                priority={i === 0}
+                loading={i === 0 ? undefined : 'lazy'}
+                quality={80}
+                sizes="100vw"
+                style={{ objectFit: 'cover', objectPosition: 'center' }}
+              />
+            </div>
+          );
+        })}
       </div>
 
       <div className="hero__overlay" aria-hidden="true" />

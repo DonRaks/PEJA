@@ -1,5 +1,20 @@
 import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-cormorant",
+});
 
 export const viewport: Viewport = {
   themeColor: "#132b1e",
@@ -34,8 +49,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-NG">
-      <body>{children}</body>
+    <html lang="en-NG" className={`${inter.variable} ${cormorant.variable}`}>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
